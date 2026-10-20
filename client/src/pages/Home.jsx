@@ -1,5 +1,8 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Disc3 } from "lucide-react";
+import toast from "react-hot-toast";
+import { api, getErrorMessage } from "../lib/api.js";
 import { useAuthStore } from "../store/authStore.js";
 import { useLibraryStore } from "../store/libraryStore.js";
 import { usePaginatedList } from "../hooks/usePaginatedList.js";
@@ -21,8 +24,70 @@ export default function Home() {
   const artists = usePaginatedList("/artists", {}, { limit: 8 });
   const songs = usePaginatedList("/songs", { sort: "newest" }, { limit: 8 });
 
-  const loaded = !albums.loading && !artists.loading && !songs.loading;
-  const nothing = loaded && !albums.error && !artists.error && !songs.error && albums.total + artists.total + songs.total === 0;
+  const [history, setHistory] = useState([]);
+  const [historyLoading, setHistoryLoading] = useState(true);
+  const [historyError, setHistoryError] = useState("");
+  const [clearingHistory, setClearingHistory] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function fetchHistory() {
+      setHistoryLoading(true);
+      setHistoryError("");
+
+      try {
+        const { data } = await api.get("/history");
+
+        if (!cancelled) {
+          setHistory(data.data ?? []);
+        }
+      } catch (err) {
+        if (!cancelled) {
+          setHistoryError(getErrorMessage(err));
+        }
+      } finally {
+        if (!cancelled) {
+          setHistoryLoading(false);
+        }
+      }
+    }
+
+    fetchHistory();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  async function clearHistory() {
+    setClearingHistory(true);
+
+    try {
+      await api.delete("/history");
+      setHistory([]);
+      toast.success("Play history cleared");
+    } catch (err) {
+      toast.error(getErrorMessage(err));
+    } finally {
+      setClearingHistory(false);
+    }
+  }
+
+  const loaded =
+    !albums.loading &&
+    !artists.loading &&
+    !songs.loading &&
+    !historyLoading;
+
+  const nothing =
+    loaded &&
+    !historyError &&
+    !albums.error &&
+    !artists.error &&
+    !songs.error &&
+    albums.total + artists.total + songs.total === 0 &&
+    history.length === 0;
 
   return (
     <div className="px-4 pb-10 pt-6 md:px-8">
@@ -59,6 +124,35 @@ export default function Home() {
                   );
                 })}
               </div>
+            </Section>
+          )}
+
+          {(historyLoading || history.length > 0 || historyError) && (
+            <Section title="Recently played">
+              <div className="mb-3 flex items-center justify-between gap-3">
+                <p className="text-sm text-muted">
+                  Your recently played songs
+                </p>
+
+                {history.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={clearHistory}
+                    disabled={clearingHistory}
+                    className="rounded-full border border-white/10 px-3 py-1 text-xs text-muted transition hover:bg-white/5 hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    {clearingHistory ? "Clearing..." : "Clear"}
+                  </button>
+                )}
+              </div>
+
+              {historyLoading ? (
+                <SongListSkeleton />
+              ) : historyError ? (
+                <ErrorLine message={historyError} />
+              ) : history.length > 0 ? (
+                <SongList songs={history} showHeader />
+              ) : null}
             </Section>
           )}
 

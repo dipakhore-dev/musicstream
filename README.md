@@ -1,153 +1,166 @@
 # MusicStream
 
-**A full-stack music streaming web app built with the MERN stack.** Browse and search a music library, build playlists, like songs, and keep listening while you move around the app. Download songs to listen offline, and install it on your phone or computer like a native app.
+MusicStream is a music streaming website, like a small Spotify. You can sign up, play songs, make playlists, like songs, search, and even download songs to listen without internet. It also works on your phone as an app.
+
+I made this project to practice full stack web development with the MERN stack (MongoDB, Express, React and Node.js).
+
+**Live link:** https://musicstream-jet.vercel.app/
 
 
-**Live demo:** https://musicstream-jet.vercel.app/
+
+## Screenshots
+
+![Home](docs/screenshots/Home.png)
+![Player](docs/screenshots/Admin.png)
+![Search](docs/screenshots/Login.png)
 
 
+## Features
 
-| Home | Admin | Login |
-| --- | --- | --- |
-| ![Home](docs/screenshots/Home.png) | ![Player](docs/screenshots/Admin.png) | ![Search](docs/screenshots/Login.png) |
+**For users**
+- Sign up with an email code (OTP), log in and log out
+- Forgot password with a code sent to your email
+- Music player that stays at the bottom while you move between pages
+- Play, pause, next, previous, seek, volume, shuffle and repeat
+- Queue, where you can change the order of songs
+- Create playlists and add or remove songs
+- Like songs and see them in Liked Songs
+- Recently played songs on the home page
+- Search for songs, artists and albums
+- Download songs in two ways:
+  - Download in the app, so you can play them without internet
+  - Save to your phone or computer as a file
+- Change your name and profile photo
+- Install the website as an app on your phone or computer
+- Works on mobile and desktop
 
+**For the admin**
+- Upload songs with audio and cover image
+- Add, edit and delete artists, albums and songs
+- Turn downloads on or off for each song
 
-## What you can do
+## Technologies Used
 
-**Listen**
-- A persistent player that keeps playing while you navigate: play/pause, next/previous, seek, volume, shuffle, repeat and a reorderable queue
-- Full-screen player and mini player on phones, with lock-screen and media-key controls
-- A player bar that takes its colour from the album art
-
-**Discover**
-- Browse songs, albums and artists with cover art and metadata
-- Debounced search across songs, artists and albums, with a top result, recent searches and genre tiles
-
-**Your library**
-- Playlists: create, rename, delete, add and remove songs
-- Liked Songs, with an instant heart toggle everywhere
-
-**Offline**
-- **Download in app:** songs are stored in the browser so they play with no internet
-- **Save to device:** download audio files to the phone or computer
-- Works for single songs, albums, playlists and Liked Songs; admins control which songs can be downloaded
-
-**Accounts and security**
-- Sign-up with a 6-digit email verification code, plus password reset by code
-- Cookie-based sessions (JWT in an httpOnly cookie), profile editing with a photo upload
-
-**Admin panel**
-- Upload songs (audio and cover), create, edit and delete artists, albums and songs, and switch downloads on or off per song
-
-**Installable (PWA)**
-- Add it to the home screen on Android, iPhone and desktop; opens in its own window and works offline for downloaded songs
-
-## Tech stack
-
-| Layer | Technology |
+| Part | What I used |
 | --- | --- |
-| Frontend | React 18 (Vite), React Router, Tailwind CSS, Zustand |
-| Backend | Node.js, Express 4, Mongoose |
-| Database | MongoDB Atlas |
-| File storage | Cloudinary (audio and images) |
-| Auth | JWT in an httpOnly cookie, bcryptjs, email one-time codes |
-| Validation and security | Zod, helmet, cors, express-rate-limit |
-| Email | Brevo (also supports Resend and SMTP) |
-| Hosting | Vercel (frontend), Render (API) |
+| Frontend | React, Vite, Tailwind CSS, React Router, Zustand |
+| Backend | Node.js, Express |
+| Database | MongoDB (Mongoose) |
+| File storage | Cloudinary (songs and images) |
+| Login | JWT in a cookie, bcryptjs for passwords |
+| Checking input | Zod |
+| Email | Brevo |
 
-## How it works
+## How to Run It on Your Computer
 
-```
-Browser (React single-page app, installable PWA)
-   │   every request goes to /api/... on the same site
-   ▼
-Vercel ── forwards /api/* ──▶ Render (Express API) ──▶ MongoDB Atlas
-                                  ├──▶ Cloudinary (audio and images)
-                                  └──▶ Brevo (verification and reset emails)
-```
+You need Node.js (version 18 or newer), a free MongoDB Atlas account and a free Cloudinary account.
 
-Vercel forwards `/api` to the backend so the login cookie is first-party, which keeps login working in Safari and in the installed app. Design decisions, the security model and trade-offs are explained in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
-
-## Run it locally
-
-**You need:** Node.js 18 or newer, a free [MongoDB Atlas](https://www.mongodb.com/atlas) cluster and a free [Cloudinary](https://cloudinary.com) account.
+**1. Download the project and install**
 
 ```bash
 git clone https://github.com/YOUR-USERNAME/musicstream.git
 cd musicstream
-npm install                 # installs the dev runner
-npm run install:all         # installs server and client dependencies
-cp server/.env.example server/.env    # Windows: copy server\.env.example server\.env
-# fill in server/.env (see below), then:
-npm run dev                 # API on :5000, app on http://localhost:5173
+npm install
+npm run install:all
 ```
 
-The main settings in `server/.env`:
+**2. Make the .env file**
 
-| Variable | Purpose |
-| --- | --- |
-| `MONGODB_URI` | Atlas connection string, including the database name |
-| `JWT_SECRET` | 32+ random characters |
-| `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET` | File uploads |
-| `EMAIL_PROVIDER` | Leave as `console` locally: verification codes print in the server terminal, no email account needed |
-| `CLIENT_URL` | Frontend address (default `http://localhost:5173`) |
+```bash
+cp server/.env.example server/.env
+```
 
-Every variable is listed in `server/.env.example`.
+On Windows use `copy server\.env.example server\.env`.
 
-**Become an admin:** sign up in the app, then run `npm run make-admin -- you@example.com` inside `server/`.
+Open `server/.env` and fill these values:
 
-**Add demo music:** copy `server/seed/tracks.example.json` to `server/seed/tracks.json`, edit it, and run `npm run seed` inside `server/`.
+- `MONGODB_URI`: the connection link from MongoDB Atlas
+- `JWT_SECRET`: any long random text (at least 32 characters)
+- `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`: from your Cloudinary dashboard
 
-## Deployment
+Keep `EMAIL_PROVIDER=console`. With this setting the email codes show in the server terminal, so you do not need a real email service while testing.
 
-The app is deployed with the frontend on Vercel and the API on Render. Step-by-step instructions, the email setup, production notes and a troubleshooting table are in [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
+**3. Start the project**
 
-## Project structure
+```bash
+npm run dev
+```
+
+- Website: http://localhost:5173
+- Server: http://localhost:5000
+
+## How to Use It
+
+1. Open the website and sign up.
+2. Look at the terminal where the server is running. Copy the 6-digit code and type it on the website.
+3. To make your account an admin, open a new terminal and run:
+
+```bash
+cd server
+npm run make-admin -- your-email@example.com
+```
+
+4. Log in again and open the Admin panel to upload songs.
+5. Now you can play songs, make playlists, search and download.
+
+You can also add sample songs with `npm run seed` inside the `server` folder. See `server/seed/tracks.example.json` for the format.
+
+## Folder Structure
 
 ```
 musicstream/
-├── render.yaml                 Render blueprint (API)
-├── docs/                       Architecture and deployment guides
-├── server/
-│   ├── scripts/                makeAdmin.js, seed.js
-│   ├── seed/                   Example seed data
+├── client/        React website
 │   └── src/
-│       ├── config/             Validated environment, database, Cloudinary
-│       ├── controllers/  routes/  models/  validators/
-│       ├── middleware/         auth, csrf, sanitize, upload, rate limiters, error handler
-│       └── utils/              errors, one-time codes, mailer, uploads
-└── client/
-    ├── vercel.json             SPA routing, API forwarding, headers
-    ├── public/                 Manifest, service worker, offline page, icons
-    └── src/
-        ├── components/  pages/  hooks/  store/  lib/
+│       ├── components/   small parts of the page (player, cards, menus)
+│       ├── pages/        full pages (Home, Search, Library, Admin)
+│       ├── store/        shared data (player, login, downloads)
+│       ├── hooks/        reusable React hooks
+│       └── lib/          helper code
+├── server/        Express API
+│   └── src/
+│       ├── models/       MongoDB models (User, Song, Album, Artist, Playlist)
+│       ├── controllers/  the main logic for each route
+│       ├── routes/       API URLs
+│       ├── middleware/   login check, uploads, rate limits
+│       └── utils/        helper code (emails, codes, errors)
+└── docs/          extra notes
 ```
 
-## Security
+## Security Things I Added
 
-Passwords are hashed with bcrypt and sessions use httpOnly cookies. State-changing requests are protected against CSRF (origin allow-list plus a required header), all input is validated with Zod, and sign-in, one-time codes, search, uploads and downloads are rate-limited. Verification codes are stored only as keyed hashes, expire after 10 minutes, and are burned after 5 wrong attempts. The full list is in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md#security-summary).
+- Passwords are saved as hashes, never as plain text
+- Login uses a cookie that JavaScript cannot read
+- The server checks all input before using it
+- Limits on how many times someone can try to log in or ask for a code
+- Email codes expire after 10 minutes and stop working after 5 wrong tries
 
-## Known limitations
 
-- Search uses regular-expression matching, which suits thousands of songs; very large libraries would need a search engine such as Atlas Search.
-- Song files are public Cloudinary links, so the "downloads allowed" setting controls the app's buttons rather than locking the files.
-- Cover art is not stored for offline use, and browsers may clear stored downloads.
-- The API runs on a free plan that sleeps when idle, so the first request after a quiet period can take up to a minute.
-- There are no automated tests yet.
 
-## About this project
+## What I Learned
 
-I built MusicStream to practise full-stack development end to end: authentication, file uploads, a persistent audio player, search, offline support, security and deployment.
+- How login works with cookies and tokens
+- How to upload files to Cloudinary from a Node server
+- How to keep music playing while the user moves between pages
+- How to use MongoDB with Mongoose
+- How to read error messages and fix them step by step
 
-I built it with the help of an AI assistant (Claude), which wrote much of the code from my requirements and design references. I chose the features and the look, set up and configured MongoDB Atlas, Cloudinary and Brevo, deployed the API on Render and the client on Vercel, tested the features, and fixed problems that came up along the way, such as replacing the native `bcrypt` module with `bcryptjs` when it failed to load on Node 24.
+## Things I Want to Add Later
+
+- Tests for the code
+- Make the Recently played list update right after a song plays
+- Show cover images when offline
+- Mobile apps for Play Store and App Store
+
+## How I Built This
+
+I used an AI assistant (Claude) to help write a lot of the code. I decided which features to build and how the website should look, set up MongoDB, Cloudinary and the email service, tested everything, fixed the errors, and put the project online. I wrote the Recently played feature myself.
 
 ## Author
 
 **Dipak Hore**
+
 [GitHub]https://github.com/dipakhore979 · [LinkedIn]https://www.linkedin.com/in/dipak-hore
 
-Released under the [MIT License](LICENSE).
+## License
 
-## Credits
-
-Spotify is a trademark of Spotify AB; this project is not affiliated with it. Only use music you have the right to host, and check each track's licence ([Pixabay Music](https://pixabay.com/music/) and the [Free Music Archive](https://freemusicarchive.org/) are good sources).
+MIT License. This is a learning project and it is not connected to Spotify.

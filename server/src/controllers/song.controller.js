@@ -3,6 +3,7 @@ import Artist from "../models/Artist.js";
 import Album from "../models/Album.js";
 import Like from "../models/Like.js";
 import Playlist from "../models/Playlist.js";
+import PlayHistory from "../models/PlayHistory.js";
 import { ApiError } from "../utils/ApiError.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { buildPageMeta, getPagination, sendSuccess } from "../utils/apiResponse.js";
@@ -111,9 +112,10 @@ export const deleteSong = asyncHandler(async (req, res) => {
   if (!song) throw ApiError.notFound("Song not found");
 
   await song.deleteOne();
-  // Remove dangling references so no like or playlist points at a song that no longer exists.
+  // Remove dangling references so no like, history entry or playlist points at a song that no longer exists.
   await Promise.all([
     Like.deleteMany({ song: song._id }),
+    PlayHistory.deleteMany({ song: song._id }),
     Playlist.updateMany({ songs: song._id }, { $pull: { songs: song._id } }),
   ]);
   await Promise.all([
@@ -123,10 +125,36 @@ export const deleteSong = asyncHandler(async (req, res) => {
   sendSuccess(res, { message: "Song deleted" });
 });
 
-// Called by the audio engine when a track starts playing; bumps the play counter.
+// Called by the audio engine when a track starts playing; bumps the play counter
+// and records the play in the user's history.
 export const registerPlay = asyncHandler(async (req, res) => {
-  const song = await Song.findByIdAndUpdate(req.params.id, { $inc: { playCount: 1 } });
+  const song = await Song.findByIdAndUpdate(req.params.id, {
+    $inc: { playCount: 1 },
+  });
+
   if (!song) throw ApiError.notFound("Song not found");
+
+  // Record or update play history for the authenticated user.
+  if (req.user?._id) {
+    // History is a side feature: if this write fails (for example two plays of the same song
+    // racing into the unique index, error code 11000), the play itself must still succeed.
+    try {
+      await PlayHistory.findOneAndUpdate(
+        { user: req.user._id, song: song._id },
+        {
+          $set: { playedAt: new Date() },
+        },
+        {
+          upsert: true,
+          new: true,
+          setDefaultsOnInsert: true,
+        }
+      );
+    } catch (err) {
+      if (err.code !== 11000) console.error("Failed to record play history:", err.message);
+    }
+  }
+
   sendSuccess(res, { message: "Play recorded" });
 });
 

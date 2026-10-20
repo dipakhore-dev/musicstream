@@ -8,6 +8,7 @@ import playlistRoutes from "./playlist.routes.js";
 import likeRoutes from "./like.routes.js";
 import searchRoutes from "./search.routes.js";
 import userRoutes from "./user.routes.js";
+import historyRoutes from "./history.routes.js";
 
 const router = Router();
 
@@ -20,5 +21,6 @@ router.use("/playlists", playlistRoutes);
 router.use("/likes", likeRoutes);
 router.use("/search", searchRoutes);
 router.use("/users", userRoutes);
+router.use("/history", historyRoutes);
 
 export default router;
