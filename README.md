@@ -1,166 +1,88 @@
-# MusicStream
+# MusicStream 🎵
 
-MusicStream is a music streaming website, like a small Spotify. You can sign up, play songs, make playlists, like songs, search, and even download songs to listen without internet. It also works on your phone as an app.
+### Full-Stack Music Streaming Web Application
 
-I made this project to practice full stack web development with the MERN stack (MongoDB, Express, React and Node.js).
+MusicStream is a responsive, full-stack music streaming application built with the MERN stack. It brings together music discovery, personalized libraries, playlist management, and a persistent audio player in a single web experience. An administration interface supports music catalog management.
 
-**Live link:** https://musicstream-jet.vercel.app/
+**[Live Demo](https://musicstream-jet.vercel.app/)** · **[GitHub Profile](https://github.com/dipakhore-dev)**
 
+## Project Preview
 
+| Home | Admin Dashboard | Authentication |
+| --- | --- | --- |
+| ![MusicStream home screen](docs/screenshots/Home.png) | ![MusicStream admin dashboard](docs/screenshots/Admin.png) | ![MusicStream login screen](docs/screenshots/Login.png) |
 
-## Screenshots
+## Key Features
 
-![Home](docs/screenshots/Home.png)
-![Player](docs/screenshots/Admin.png)
-![Search](docs/screenshots/Login.png)
+**Music experience**
+- Persistent audio player with play/pause, seeking, volume, shuffle, and repeat controls
+- Track queue management, including reordering
+- Search across songs, artists, and albums
+- Recently played tracks and liked songs
+- Custom playlists with track management
+- In-app offline listening and optional audio file downloads, subject to track settings
+- Responsive interface with Progressive Web App (PWA) support
 
+**Accounts and personalization**
+- Email OTP registration and password recovery
+- JWT-based authentication using HTTP-only cookies
+- Profile name and photo updates
+- Personal music library and listening history
 
-## Features
+**Administration**
+- Dedicated admin interface for music catalog management
+- Upload audio tracks and cover artwork
+- Create, update, and remove songs, albums, and artists
+- Control download availability for individual tracks
 
-**For users**
-- Sign up with an email code (OTP), log in and log out
-- Forgot password with a code sent to your email
-- Music player that stays at the bottom while you move between pages
-- Play, pause, next, previous, seek, volume, shuffle and repeat
-- Queue, where you can change the order of songs
-- Create playlists and add or remove songs
-- Like songs and see them in Liked Songs
-- Recently played songs on the home page
-- Search for songs, artists and albums
-- Download songs in two ways:
-  - Download in the app, so you can play them without internet
-  - Save to your phone or computer as a file
-- Change your name and profile photo
-- Install the website as an app on your phone or computer
-- Works on mobile and desktop
+## Technology Stack
 
-**For the admin**
-- Upload songs with audio and cover image
-- Add, edit and delete artists, albums and songs
-- Turn downloads on or off for each song
-
-## Technologies Used
-
-| Part | What I used |
+| Layer | Technologies |
 | --- | --- |
-| Frontend | React, Vite, Tailwind CSS, React Router, Zustand |
-| Backend | Node.js, Express |
-| Database | MongoDB (Mongoose) |
-| File storage | Cloudinary (songs and images) |
-| Login | JWT in a cookie, bcryptjs for passwords |
-| Checking input | Zod |
+| Frontend | React, Vite, Tailwind CSS, React Router |
+| State management | Zustand |
+| Backend | Node.js, Express.js |
+| Database | MongoDB, Mongoose |
+| Media storage | Cloudinary |
+| Authentication | JWT, bcryptjs, HTTP-only cookies |
+| Validation | Zod |
 | Email | Brevo |
 
-## How to Run It on Your Computer
+## Architecture Overview
 
-You need Node.js (version 18 or newer), a free MongoDB Atlas account and a free Cloudinary account.
+MusicStream separates its React client from an Express REST API. The frontend handles navigation, playback, and interactive user experiences. The backend manages authentication, application rules, music metadata, and administrative operations.
 
-**1. Download the project and install**
+- **Client:** Component-based React interface, shared application state, and playback controls
+- **API:** Express routes, controllers, middleware, and input validation
+- **Persistence:** MongoDB collections managed through Mongoose models
+- **Media:** Cloudinary-backed audio and image storage
+- **Access control:** Authenticated sessions and role-based administrative operations
 
-```bash
-git clone https://github.com/YOUR-USERNAME/musicstream.git
-cd musicstream
-npm install
-npm run install:all
-```
+## Security Considerations
 
-**2. Make the .env file**
+The application incorporates password hashing, HTTP-only authentication cookies, server-side input validation, request rate limiting, and expiring email verification codes with retry limits. Administrative actions are protected by authorization checks.
 
-```bash
-cp server/.env.example server/.env
-```
+## Engineering Highlights
 
-On Windows use `copy server\.env.example server\.env`.
+- Coordinated persistent audio playback across multiple application views
+- Designed user and administrator workflows within one full-stack application
+- Integrated third-party services for media management and email verification
+- Implemented playlist, library, and listening-history features using React state and backend APIs
+- Deployed a client-server application with a hosted database and media service
 
-Open `server/.env` and fill these values:
+## Project Scope
 
-- `MONGODB_URI`: the connection link from MongoDB Atlas
-- `JWT_SECRET`: any long random text (at least 32 characters)
-- `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`: from your Cloudinary dashboard
+MusicStream is an independently developed student portfolio project demonstrating full-stack web development, API integration, authentication, database design, and deployment. AI-assisted coding tools were used during development, alongside project planning, integration, testing, and debugging.
 
-Keep `EMAIL_PROVIDER=console`. With this setting the email codes show in the server terminal, so you do not need a real email service while testing.
+MusicStream is an independent project and is not affiliated with Spotify or any other music streaming service.
 
-**3. Start the project**
+## Developer
 
-```bash
-npm run dev
-```
+**Dipak Hore**  
+B.Tech Computer Science & Engineering (AI & ML) · Full-Stack Developer
 
-- Website: http://localhost:5173
-- Server: http://localhost:5000
-
-## How to Use It
-
-1. Open the website and sign up.
-2. Look at the terminal where the server is running. Copy the 6-digit code and type it on the website.
-3. To make your account an admin, open a new terminal and run:
-
-```bash
-cd server
-npm run make-admin -- your-email@example.com
-```
-
-4. Log in again and open the Admin panel to upload songs.
-5. Now you can play songs, make playlists, search and download.
-
-You can also add sample songs with `npm run seed` inside the `server` folder. See `server/seed/tracks.example.json` for the format.
-
-## Folder Structure
-
-```
-musicstream/
-├── client/        React website
-│   └── src/
-│       ├── components/   small parts of the page (player, cards, menus)
-│       ├── pages/        full pages (Home, Search, Library, Admin)
-│       ├── store/        shared data (player, login, downloads)
-│       ├── hooks/        reusable React hooks
-│       └── lib/          helper code
-├── server/        Express API
-│   └── src/
-│       ├── models/       MongoDB models (User, Song, Album, Artist, Playlist)
-│       ├── controllers/  the main logic for each route
-│       ├── routes/       API URLs
-│       ├── middleware/   login check, uploads, rate limits
-│       └── utils/        helper code (emails, codes, errors)
-└── docs/          extra notes
-```
-
-## Security Things I Added
-
-- Passwords are saved as hashes, never as plain text
-- Login uses a cookie that JavaScript cannot read
-- The server checks all input before using it
-- Limits on how many times someone can try to log in or ask for a code
-- Email codes expire after 10 minutes and stop working after 5 wrong tries
-
-
-
-## What I Learned
-
-- How login works with cookies and tokens
-- How to upload files to Cloudinary from a Node server
-- How to keep music playing while the user moves between pages
-- How to use MongoDB with Mongoose
-- How to read error messages and fix them step by step
-
-## Things I Want to Add Later
-
-- Tests for the code
-- Make the Recently played list update right after a song plays
-- Show cover images when offline
-- Mobile apps for Play Store and App Store
-
-## How I Built This
-
-I used an AI assistant (Claude) to help write a lot of the code. I decided which features to build and how the website should look, set up MongoDB, Cloudinary and the email service, tested everything, fixed the errors, and put the project online. I wrote the Recently played feature myself.
-
-## Author
-
-**Dipak Hore**
-
-[GitHub]https://github.com/dipakhore979 · [LinkedIn]https://www.linkedin.com/in/dipak-hore
+[GitHub](https://github.com/dipakhore-dev) · [LinkedIn](https://www.linkedin.com/in/dipak-hore)
 
 ## License
 
-MIT License. This is a learning project and it is not connected to Spotify.
+This project is licensed under the [MIT License](LICENSE).
